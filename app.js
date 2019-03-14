@@ -1,75 +1,59 @@
-var countries = ["Japan", "Philippines", "France", "America", "Iceland", "Thailand", "Korea"];
+// APP CAN BE FOUND AT: https://aprilleperez.github.io/bootstrap-portfolio/portfolio.html
+
+var countries = ["Japan", "Philippines", "France", "America", "Iceland", "Thailand", "Korea"]; // countries to be displayed on load
 
 
-function displayCountryInfo() {
+// Function to display selected country's related Gifs
+function displayCountryGifs() {
+    $("#magicBox").hide(); // hides the "Magic Box" text when gifs appear
 
-    var country = $(this).attr("data-name"); // store variable with the button's data name (i.e. the country)
-    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + country + "&api_key=T2zA6FiBQ0cSHAnskqEfiHWMQ10eFtEV&limit=10&rating=g";
+    var country = $(this).attr("data-name"); // store variable with the button's data name (i.e. data-name=Japan -> country = Japan)
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + country + "&api_key=T2zA6FiBQ0cSHAnskqEfiHWMQ10eFtEV&limit=10&rating=g"; // Giphy API with q country search, API key, and limit/rating params
     console.log("first click: " + queryURL);
-    $("#domGifs").empty(); // empties gif container every click of button
+    $("#domGifs").empty(); // empties gif container every click of country button
 
-    // Creates AJAX call for the specific country button being clicked
-    $.ajax({
+    $.ajax({ // Creates AJAX call for the specific country button being clicked
         url: queryURL,
         method: "GET"
     }).then(function (response) {
 
-        // make var for to store returend data (whole object)
-        var giphy = response.data;
+        var giphy = response.data; // var to store object data from query
         console.log(giphy);
-        // loop through each indices 
-        for (var i = 0; i < giphy.length; i++) {
-            // make variable for each thing you want grab (still img, rating)
-            // var gifOriginal = giphy[i].images.original_still.url;
-            var gifStill = giphy[i].images.original_still.url;
-            var gifAnimate = giphy[i].images.original.url;
-            console.log(gifAnimate)
-            var gifRating = giphy[i].rating;
+        for (var i = 0; i < giphy.length; i++) {  // loop through each indices of object
+            var gifStill = giphy[i].images.original_still.url; // grab still url and store in var
+            var gifAnimate = giphy[i].images.original.url; // grab animated url and store in var
+            var gifRating = giphy[i].rating; // grab rating value and store in var
 
-            // create div to hold image and p tag for rating 
-            var imgDiv = $("<div>");
-            var gifImage = $("<img>");
-            var p = $("<p>").text("Rating: " + gifRating);
+            var imgDiv = $("<div>"); // create div to hold rating and gif
+            var gifImage = $("<img>"); // create gif block
+            var p = $("<p>").text("Rating: " + gifRating); // create p tag for DOM rating
 
-            gifImage.attr("src", gifStill);
-            gifImage.attr("data-still", gifStill);
-            gifImage.attr("data-animate", gifAnimate);
-            gifImage.attr("data-state", "still");
-            gifImage.attr("class", "country");
+            gifImage.attr("src", gifStill); // set src attr
+            gifImage.attr("data-still", gifStill); // set data-still attr
+            gifImage.attr("data-animate", gifAnimate); // set data-animate attr
+            gifImage.attr("data-state", "still"); // set the data state to still
+            gifImage.attr("class", "country"); // give class as country
 
-            // put those into created div
-            imgDiv.append(p);
-            imgDiv.append(gifImage)
+            imgDiv.append(p); // add p tag to div
+            imgDiv.append(gifImage) // add image block to div
 
-            // prepend to container that displays the returned stuff
-            $("#domGifs").prepend(imgDiv);
+            $("#domGifs").prepend(imgDiv); // prepend to DOM container that displays entire div
         };
-        // on click to make switch
-        $(".country").on("click", function () {
+       
+        $(".country").on("click", function () {  // on click of gif image, make state switch
             console.log("second click: " + queryURL);
-            // STEP TWO: make a variable named state and then store the image's data-state into it.
-            // Use the .attr() method for this.
-            // var state = $(this).data('state');
-            // ============== FILL IN CODE HERE FOR STEP TWO =========================
 
-            var state = $(this).attr("data-state"); // use the .attr method for this (clicked gif)
+            var state = $(this).attr("data-state"); // var storing image's current state
 
-            // =============================================
-            if (state === "still") {
-                // STEP THREE: Check if the variable state is equal to 'still',
-                // then update the src attribute of this image to it's data-animate value,
-                // and update the data-state attribute to 'animate'.
+            if (state === "still") { // if current state is set to still
+                var animate = $(this).attr("data-animate"); // var storing image's data-animate URL
+                $(this).attr("src", animate); // change image's src attr to its animate attr
+                $(this).attr("data-state", "animate"); // change image's current state to animate
 
-                var animate = $(this).attr("data-animate");
-
-                $(this).attr("src", animate);
-                $(this).attr("data-state", "animate");
-            } else {
-                // If state is equal to 'animate', then update the src attribute of this
-                // image to it's data-still value and update the data-state attribute to 'still'
-                var still = $(this).attr("data-still");
-                $(this).attr("src", still);
-                $(this).attr("data-state", "still");
+            } else { // else if current state is set to animate
+                var still = $(this).attr("data-still"); // var storing image's data-still URL
+                $(this).attr("src", still); // change image's src attr to its still attr
+                $(this).attr("data-state", "still"); // change image's current state to still
             }
         });
     });
@@ -78,60 +62,34 @@ function displayCountryInfo() {
 
 // Function to display buttons on load
 function renderButtons() {
-
-    // Deletes the countries prior to adding new countries (otherwise repeat buttons)
-    $("#domGifButtons").empty();
-    // Loops through the array of countries
-    for (var i = 0; i < countries.length; i++) {
-
-        // Then dynamicaly generates buttons for each movie in the array
-        // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
-        var button = $("<button>");
-        button.addClass("btn btn-primary");
-        button.addClass("countryButton");
-        button.attr("data-name", countries[i]);
-        button.text(countries[i]);
-        $("#domGifButtons").append(button);
+    $("#domGifButtons").empty(); // Deletes the countries prior to adding new countries (otherwise repeat buttons)
+    
+    for (var i = 0; i < countries.length; i++) { // Loops through the array of countries
+        var button = $("<button>"); // create button tag
+        button.addClass("btn btn-primary"); // add Bootstrap button classes 
+        button.addClass("countryButton"); // add countryButton class for clicks
+        button.attr("data-name", countries[i]); // give button data-name attr of country of that index
+        button.text(countries[i]); // make the button text the country of that index
+        $("#domGifButtons").append(button); // display buttons in HTML container
     };
 };
-renderButtons();
+renderButtons(); // call function
 
 
-// Function to add additional country button to app
-$("#addButton").on("click", function (event) {
-    event.preventDefault();
-    var country = $("#searchForm").val().trim();
-    countries.push(country);
-    renderButtons();
+// Function to add additional country button to app from form
+$("#addButton").on("click", function (event) { // 
+    event.preventDefault(); // prevent from refreshing page
+    var country = $("#searchForm").val().trim(); // var storing string value from form (trimmed)
+    countries.push(country); // push that country to the country array
+    renderButtons(); // call render function
 });
 
 
-// Adding click event listeners to all elements with a class of "country"
-$(document).on("click", ".countryButton", displayCountryInfo);
+// Adding click event listeners to all elements (buttons) with a class of "countryButton"
+$(document).on("click", ".countryButton", displayCountryGifs);
 
 // Calling the renderButtons function to display the intial buttons
 renderButtons();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -157,38 +115,3 @@ renderButtons();
 //         .text(topic)
 //         .addClass("topicButton")
 //     }
-
-//     $(document).on("click", ".topicButtons", callGiphy())
-
-
-
-
-
-
-
-// var searchForm = "japan";
-// var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + searchForm + "&api_key=T2zA6FiBQ0cSHAnskqEfiHWMQ10eFtEV&limit=10&rating=g";
-
-
-// imgDiv.attr("src", gifStill);
-// imgDiv.attr("class", "country");
-
-
-// imgDiv.append(gifStill);
-// p.append("Rating: " + gifRating);
-
-
-// $("#domGifs").append(p);
-
-
-      // ============== FILL IN CODE HERE FOR STEP THREE =========================
-
-            // if (state === "still") {
-            //     var animate = $(this).attr("data-animate");
-            //     $(this).attr("src", animate);
-            //     $(this).attr("data-state", "animate");
-            // } else {
-            //     var still = $(this).attr("data-still");
-            //     $(this).attr("src", still);
-            //     $(this).attr("data-state", "still");
-            // }
